@@ -79,8 +79,8 @@ export default function(_data, _trades, _indicatorResults, _height) {
     var timeAnnotation = techan.plot.axisannotation()
             .axis(xAxis)
             .orient('bottom')
-            .format(d3.timeFormat('%Y-%m-%d'))
-            .width(65)
+            .format(d3.timeFormat('%Y-%m-%d %H:%M'))
+            .width(85)
             .translate([0, dim.plot.height]);
 
     var yAxis = d3.axisRight(y);

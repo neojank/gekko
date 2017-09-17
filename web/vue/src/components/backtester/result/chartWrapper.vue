@@ -58,6 +58,7 @@ export default {
 }
 
 text {
+    font: 10px sans-serif;
     fill: #000;
 }
 
