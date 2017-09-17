@@ -52,59 +52,9 @@ export default {
 
 <style>
 
-#chartWrapper.clickable {
-  position: relative;
-}
-
-#chartWrapper.clickable .shield {
-  cursor: zoom-in;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: grey;
-  opacity: 0.1;
-}
-
 #chart {
-  background-color: #eee;
+  background-color: #fff;
   width: 100%;
-}
-
-#chart circle {
-  clip-path: url(#clip);
-}
-
-#chart .zoom {
-  cursor: move;
-  fill: none;
-  pointer-events: all;
-}
-
-#chart .line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 1.5px;
-  clip-path: url(#clip);
-}
-
-/*#chart .price.line {
-  stroke-width: 2.5px;
-}*/
-
-#chart circle.buy {
-  fill: #7FFF00;
-}
-
-#chart circle.sell {
-  fill: red;
-}
-
-/* techan */
-
-body {
-    font: 10px sans-serif;
 }
 
 text {

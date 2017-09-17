@@ -4,9 +4,11 @@ import _ from 'lodash'
 // based on example http://bl.ocks.org/andredumas/edf630690c10b89be390
 
 export default function(_data, _trades) {
+    let MAX_WIDTH = window.innerWidth;
+    
     var dim = {
-        width: 960, height: 500,
-        margin: { top: 20, right: 50, bottom: 30, left: 50 },
+        width: MAX_WIDTH, height: 500,
+        margin: { top: 20, right: 100, bottom: 30, left: 70 },
         ohlc: { height: 305 },
         indicator: { height: 65, padding: 5 }
     };
@@ -187,7 +189,7 @@ export default function(_data, _trades) {
             .yAnnotation([rsiAnnotation, rsiAnnotationLeft])
             .verticalWireRange([0, dim.plot.height]);
 
-    var svg = d3.select("body").append("svg")
+    var svg = d3.select("#chart").append("svg")
             .attr("width", dim.width)
             .attr("height", dim.height);
 
@@ -213,11 +215,6 @@ export default function(_data, _trades) {
 
     svg = svg.append("g")
             .attr("transform", "translate(" + dim.margin.left + "," + dim.margin.top + ")");
-
-    svg.append('text')
-            .attr("class", "symbol")
-            .attr("x", 20)
-            .text("Facebook, Inc. (FB)");
 
     svg.append("g")
             .attr("class", "x axis")
@@ -305,72 +302,61 @@ export default function(_data, _trades) {
 
     d3.select("button").on("click", reset);
 
-    d3.csv("data.csv", function(error, data) {
-        var accessor = candlestick.accessor(),
-            indicatorPreRoll = 33;  // Don't show where indicators don't have data
+    var accessor = candlestick.accessor(),
+        indicatorPreRoll = 33;  // Don't show where indicators don't have data
 
-        data = data.map(function(d) {
-            return {
-                date: parseDate(d.Date),
-                open: +d.Open,
-                high: +d.High,
-                low: +d.Low,
-                close: +d.Close,
-                volume: +d.Volume
-            };
-        }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
+    let data = _data.map( d => {
+        return {
+            date: new Date(d.start),
+            open: +d.open,
+            high: +d.high,
+            low: +d.low,
+            close: +d.close,
+            volume: +d.volume 
+        };
+    }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
 
-        x.domain(techan.scale.plot.time(data).domain());
-        y.domain(techan.scale.plot.ohlc(data.slice(indicatorPreRoll)).domain());
-        yPercent.domain(techan.scale.plot.percent(y, accessor(data[indicatorPreRoll])).domain());
-        yVolume.domain(techan.scale.plot.volume(data).domain());
+    x.domain(techan.scale.plot.time(data).domain());
+    y.domain(techan.scale.plot.ohlc(data.slice(indicatorPreRoll)).domain());
+    yPercent.domain(techan.scale.plot.percent(y, accessor(data[indicatorPreRoll])).domain());
+    yVolume.domain(techan.scale.plot.volume(data).domain());
 
-        var trendlineData = [
-            { start: { date: new Date(2014, 2, 11), value: 72.50 }, end: { date: new Date(2014, 5, 9), value: 63.34 } },
-            { start: { date: new Date(2013, 10, 21), value: 43 }, end: { date: new Date(2014, 2, 17), value: 70.50 } }
-        ];
-
-        var supstanceData = [
-            { start: new Date(2014, 2, 11), end: new Date(2014, 5, 9), value: 63.64 },
-            { start: new Date(2013, 10, 21), end: new Date(2014, 2, 17), value: 55.50 }
-        ];
-
-        var trades = [
-            { date: data[67].date, type: "buy", price: data[67].low, low: data[67].low, high: data[67].high },
-            { date: data[100].date, type: "sell", price: data[100].high, low: data[100].low, high: data[100].high },
-            { date: data[130].date, type: "buy", price: data[130].low, low: data[130].low, high: data[130].high },
-            { date: data[170].date, type: "sell", price: data[170].low, low: data[170].low, high: data[170].high }
-        ];
-
-        var macdData = techan.indicator.macd()(data);
-        macdScale.domain(techan.scale.plot.macd(macdData).domain());
-        var rsiData = techan.indicator.rsi()(data);
-        rsiScale.domain(techan.scale.plot.rsi(rsiData).domain());
-
-        svg.select("g.candlestick").datum(data).call(candlestick);
-        svg.select("g.close.annotation").datum([data[data.length-1]]).call(closeAnnotation);
-        svg.select("g.volume").datum(data).call(volume);
-        svg.select("g.sma.ma-0").datum(techan.indicator.sma().period(10)(data)).call(sma0);
-        svg.select("g.sma.ma-1").datum(techan.indicator.sma().period(20)(data)).call(sma1);
-        svg.select("g.ema.ma-2").datum(techan.indicator.ema().period(50)(data)).call(ema2);
-        svg.select("g.macd .indicator-plot").datum(macdData).call(macd);
-        svg.select("g.rsi .indicator-plot").datum(rsiData).call(rsi);
-
-        svg.select("g.crosshair.ohlc").call(ohlcCrosshair).call(zoom);
-        svg.select("g.crosshair.macd").call(macdCrosshair).call(zoom);
-        svg.select("g.crosshair.rsi").call(rsiCrosshair).call(zoom);
-        svg.select("g.trendlines").datum(trendlineData).call(trendline).call(trendline.drag);
-        svg.select("g.supstances").datum(supstanceData).call(supstance).call(supstance.drag);
-
-        svg.select("g.tradearrow").datum(trades).call(tradearrow);
-
-        // Stash for zooming
-        zoomableInit = x.zoomable().domain([indicatorPreRoll, data.length]).copy(); // Zoom in a little to hide indicator preroll
-        yInit = y.copy();
-        yPercentInit = yPercent.copy();
-
-        draw();
+    let trades = _trades.map( t => {
+        let trade = _.pick(t, ['price']);
+        trade.quantity = 1;
+        trade.type = t.action;
+        trade.date = new Date(t.date);
+        trade.high = trade.price ;
+        trade.low = trade.price;
+        return trade;
     });
+
+    var macdData = techan.indicator.macd()(data);
+    macdScale.domain(techan.scale.plot.macd(macdData).domain());
+    var rsiData = techan.indicator.rsi()(data);
+    rsiScale.domain(techan.scale.plot.rsi(rsiData).domain());
+
+    svg.select("g.candlestick").datum(data).call(candlestick);
+    svg.select("g.close.annotation").datum([data[data.length-1]]).call(closeAnnotation);
+    svg.select("g.volume").datum(data).call(volume);
+    svg.select("g.sma.ma-0").datum(techan.indicator.sma().period(10)(data)).call(sma0);
+    svg.select("g.sma.ma-1").datum(techan.indicator.sma().period(20)(data)).call(sma1);
+    svg.select("g.ema.ma-2").datum(techan.indicator.ema().period(50)(data)).call(ema2);
+    svg.select("g.macd .indicator-plot").datum(macdData).call(macd);
+    svg.select("g.rsi .indicator-plot").datum(rsiData).call(rsi);
+
+    svg.select("g.crosshair.ohlc").call(ohlcCrosshair).call(zoom);
+    svg.select("g.crosshair.macd").call(macdCrosshair).call(zoom);
+    svg.select("g.crosshair.rsi").call(rsiCrosshair).call(zoom);
+
+    svg.select("g.tradearrow").datum(trades).call(tradearrow);
+
+    // Stash for zooming
+    zoomableInit = x.zoomable().domain([indicatorPreRoll, data.length]).copy(); // Zoom in a little to hide indicator preroll
+    yInit = y.copy();
+    yPercentInit = yPercent.copy();
+
+    draw();
 
     function reset() {
         zoom.scale(1);
