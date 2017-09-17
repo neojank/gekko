@@ -3,11 +3,11 @@ import _ from 'lodash'
 // techanjs candle chart with indicators
 // based on example http://bl.ocks.org/andredumas/edf630690c10b89be390
 
-export default function(_data, _trades) {
+export default function(_data, _trades, _indicatorResults, _height) {
     let MAX_WIDTH = window.innerWidth;
     
     var dim = {
-        width: MAX_WIDTH, height: 500,
+        width: MAX_WIDTH, height: _height,
         margin: { top: 20, right: 100, bottom: 30, left: 70 },
         ohlc: { height: 305 },
         indicator: { height: 65, padding: 5 }
@@ -55,17 +55,11 @@ export default function(_data, _trades) {
                 else return y(d.price);
             });
 
-    var sma0 = techan.plot.sma()
-            .xScale(x)
-            .yScale(y);
-
-    var sma1 = techan.plot.sma()
-            .xScale(x)
-            .yScale(y);
-
-    var ema2 = techan.plot.ema()
-            .xScale(x)
-            .yScale(y);
+    // strategy indicators
+    let indicators = {};
+    _.each(_indicatorResults, (val, key) => {
+        indicators[key] = techan.plot.sma().xScale(x).yScale(y);
+    });
 
     var volume = techan.plot.volume()
             .accessor(candlestick.accessor())   // Set the accessor to a ohlc accessor so we get highlighted bars
@@ -339,9 +333,19 @@ export default function(_data, _trades) {
     svg.select("g.candlestick").datum(data).call(candlestick);
     svg.select("g.close.annotation").datum([data[data.length-1]]).call(closeAnnotation);
     svg.select("g.volume").datum(data).call(volume);
-    svg.select("g.sma.ma-0").datum(techan.indicator.sma().period(10)(data)).call(sma0);
-    svg.select("g.sma.ma-1").datum(techan.indicator.sma().period(20)(data)).call(sma1);
-    svg.select("g.ema.ma-2").datum(techan.indicator.ema().period(50)(data)).call(ema2);
+
+    let i = 0;
+    _.each(indicators, (val, key) => {
+        let mappedData = _indicatorResults[key].map(k => {
+            return {
+                date: new Date(k.date),
+                value: k.result
+            }
+        });
+        svg.select("g.sma.ma-" + i).datum(mappedData).call(val);
+        i++;
+    });
+
     svg.select("g.macd .indicator-plot").datum(macdData).call(macd);
     svg.select("g.rsi .indicator-plot").datum(rsiData).call(rsi);
 
@@ -386,9 +390,13 @@ export default function(_data, _trades) {
         svg.select("g.candlestick").call(candlestick.refresh);
         svg.select("g.close.annotation").call(closeAnnotation.refresh);
         svg.select("g.volume").call(volume.refresh);
-        svg.select("g .sma.ma-0").call(sma0.refresh);
-        svg.select("g .sma.ma-1").call(sma1.refresh);
-        svg.select("g .ema.ma-2").call(ema2.refresh);
+
+        i = 0;
+        _.each(indicators, (val, key) => {
+            svg.select("g .sma.ma-" + i).call(val.refresh);
+            i++;
+        });
+
         svg.select("g.macd .indicator-plot").call(macd.refresh);
         svg.select("g.rsi .indicator-plot").call(rsi.refresh);
         svg.select("g.crosshair.ohlc").call(ohlcCrosshair.refresh);

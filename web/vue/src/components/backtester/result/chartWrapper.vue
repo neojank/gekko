@@ -40,7 +40,7 @@ export default {
       if(_.size(this.data.candles) < MIN_CANDLES) {
         drawMessage('Not enough data to spawn chart');
       } else {
-        chart(this.data.candles, this.data.trades, this.height);
+        chart(this.data.candles, this.data.trades, this.data.indicatorResults, this.height);
       }
     },
     remove: function() {
@@ -79,12 +79,14 @@ path.candle.body {
 }
 
 path.candle.up {
-    fill: #00AA00;
+    fill: rgba(0, 170, 0, 0.15);
+    stroke-width: 1;
     stroke: #00AA00;
 }
 
 path.candle.down {
-    fill: #FF0000;
+    fill: rgba(255, 0, 0, 0.5);
+    stroke-width: 1;
     stroke: #FF0000;
 }
 
