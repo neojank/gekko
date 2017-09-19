@@ -9,7 +9,8 @@
         div(v-if='backtestState === "fetching"').scan-btn
           p Running backtest..
           spinner
-    result(v-if='backtestResult && backtestState === "fetched"', :result='backtestResult')
+    div.result-wrapper
+      result(v-if='backtestResult && backtestState === "fetched"', :result='backtestResult')
 </template>
 
 <script>
@@ -70,5 +71,8 @@ export default {
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
+}
+.result-wrapper{
+  min-height: 1000px; 
 }
 </style>
