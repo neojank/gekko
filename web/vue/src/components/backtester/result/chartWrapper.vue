@@ -160,53 +160,6 @@ path.middle, path.zero {
     stroke-width: 0.8;
 }
 
-.trendline circle {
-    stroke-width: 0;
-    display: none;
-}
-
-.mouseover .trendline path {
-    stroke-width: 1.2;
-}
-
-.mouseover .trendline circle {
-    stroke-width: 1;
-    display: inline;
-}
-
-.dragging .trendline path, .dragging .trendline circle {
-    stroke: darkblue;
-}
-
-.interaction path, .interaction circle {
-    pointer-events: all;
-}
-
-.interaction .body {
-    cursor: move;
-}
-
-.trendlines .interaction .start, .trendlines .interaction .end {
-    cursor: nwse-resize;
-}
-
-.supstance path {
-    stroke-dasharray: 2, 2;
-}
-
-.supstances .interaction path {
-    pointer-events: all;
-    cursor: ns-resize;
-}
-
-.mouseover .supstance path {
-    stroke-width: 1.5;
-}
-
-.dragging .supstance path {
-    stroke: darkblue;
-}
-
 .crosshair {
     cursor: crosshair;
 }

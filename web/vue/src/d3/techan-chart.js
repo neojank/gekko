@@ -66,14 +66,6 @@ export default function(_data, _trades, _indicatorResults, _height) {
             .xScale(x)
             .yScale(yVolume);
 
-    var trendline = techan.plot.trendline()
-            .xScale(x)
-            .yScale(y);
-
-    var supstance = techan.plot.supstance()
-            .xScale(x)
-            .yScale(y);
-
     var xAxis = d3.axisBottom(x);
 
     var timeAnnotation = techan.plot.axisannotation()
@@ -283,12 +275,6 @@ export default function(_data, _trades, _indicatorResults, _height) {
     svg.append('g')
             .attr("class", "crosshair rsi");
 
-    svg.append("g")
-            .attr("class", "trendlines analysis")
-            .attr("clip-path", "url(#ohlcClip)");
-    svg.append("g")
-            .attr("class", "supstances analysis")
-            .attr("clip-path", "url(#ohlcClip)");
 
     d3.select("button").on("click", reset);
 
@@ -398,8 +384,6 @@ export default function(_data, _trades, _indicatorResults, _height) {
         svg.select("g.crosshair.ohlc").call(ohlcCrosshair.refresh);
         svg.select("g.crosshair.macd").call(macdCrosshair.refresh);
         svg.select("g.crosshair.rsi").call(rsiCrosshair.refresh);
-        svg.select("g.trendlines").call(trendline.refresh);
-        svg.select("g.supstances").call(supstance.refresh);
         svg.select("g.tradearrow").call(tradearrow.refresh);
     }
 }
