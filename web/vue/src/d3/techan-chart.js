@@ -239,17 +239,13 @@ export default function(_data, _trades, _indicatorResults, _height) {
             .attr("class", "candlestick")
             .attr("clip-path", "url(#ohlcClip)");
 
-    ohlcSelection.append("g")
-            .attr("class", "indicator sma ma-0")
+    let i = 0;
+    _.each(indicators, (val, key) => {
+        ohlcSelection.append("g")
+            .attr("class", "indicator sma ma-"+i)
             .attr("clip-path", "url(#ohlcClip)");
-
-    ohlcSelection.append("g")
-            .attr("class", "indicator sma ma-1")
-            .attr("clip-path", "url(#ohlcClip)");
-
-    ohlcSelection.append("g")
-            .attr("class", "indicator ema ma-2")
-            .attr("clip-path", "url(#ohlcClip)");
+        i++;
+    });
 
     ohlcSelection.append("g")
             .attr("class", "percent axis");
@@ -334,7 +330,7 @@ export default function(_data, _trades, _indicatorResults, _height) {
     svg.select("g.close.annotation").datum([data[data.length-1]]).call(closeAnnotation);
     svg.select("g.volume").datum(data).call(volume);
 
-    let i = 0;
+    i = 0;
     _.each(indicators, (val, key) => {
         let mappedData = _indicatorResults[key].map(k => {
             return {
