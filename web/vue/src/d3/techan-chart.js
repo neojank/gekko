@@ -166,21 +166,24 @@ export default function(_data, _trades, _indicatorResults, _height) {
             .yScale(ohlcAnnotation.axis().scale())
             .xAnnotation(timeAnnotation)
             .yAnnotation([ohlcAnnotation, percentAnnotation, volumeAnnotation])
-            .verticalWireRange([0, dim.plot.height]);
+            .verticalWireRange([0, dim.plot.height])
+            .on("move", crosshairMove);
 
     var macdCrosshair = techan.plot.crosshair()
             .xScale(timeAnnotation.axis().scale())
             .yScale(macdAnnotation.axis().scale())
             .xAnnotation(timeAnnotation)
             .yAnnotation([macdAnnotation, macdAnnotationLeft])
-            .verticalWireRange([0, dim.plot.height]);
+            .verticalWireRange([0, dim.plot.height])
+            .on("move", crosshairMove);
 
     var rsiCrosshair = techan.plot.crosshair()
             .xScale(timeAnnotation.axis().scale())
             .yScale(rsiAnnotation.axis().scale())
             .xAnnotation(timeAnnotation)
             .yAnnotation([rsiAnnotation, rsiAnnotationLeft])
-            .verticalWireRange([0, dim.plot.height]);
+            .verticalWireRange([0, dim.plot.height])
+            .on("move", crosshairMove);
 
     var svg = d3.select("#chart").append("svg")
             .attr("width", dim.width)
@@ -212,6 +215,12 @@ export default function(_data, _trades, _indicatorResults, _height) {
     svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + dim.plot.height + ")");
+
+    var candleLabel = svg.append('text')
+            .style("text-anchor", "start")
+            .attr("class", "label")
+            .attr("x", 5)
+            .attr("y", 8);
 
     var ohlcSelection = svg.append("g")
             .attr("class", "ohlc")
@@ -269,7 +278,8 @@ export default function(_data, _trades, _indicatorResults, _height) {
 
     // Add trendlines and other interactions last to be above zoom pane
     svg.append('g')
-            .attr("class", "crosshair ohlc");
+            .attr("class", "crosshair ohlc")
+            .call(ohlcCrosshair);
 
     svg.append("g")
             .attr("class", "tradearrow")
@@ -285,7 +295,8 @@ export default function(_data, _trades, _indicatorResults, _height) {
     d3.select("button").on("click", reset);
 
     var accessor = candlestick.accessor(),
-        indicatorPreRoll = 33;  // Don't show where indicators don't have data
+        indicatorPreRoll = 0;  // Don't show where indicators don't have data
+    var bisectDate = d3.bisector(accessor.d).left; // accessor.d is equal to function(d) { return d.date; };
 
     let data = _data.map( d => {
         return {
@@ -340,6 +351,8 @@ export default function(_data, _trades, _indicatorResults, _height) {
     yInit = y.copy();
     yPercentInit = yPercent.copy();
 
+    crosshairMove({ x: x.domain()[x.domain().length-1], y:1 }) // display last candles in label
+
     draw();
 
     function reset() {
@@ -384,4 +397,24 @@ export default function(_data, _trades, _indicatorResults, _height) {
         svg.select("g.crosshair.rsi").call(rsiCrosshair.refresh);
         svg.select("g.tradearrow").call(tradearrow.refresh);
     }
+
+    function crosshairMove(coords) {
+        let i = bisectDate(data, coords.x); //get closest index
+        let candle = data[i];
+        let indicatorValues = " ";
+        _.each(indicators, (indicator, name) => {
+            let value = indicatorData[name][i].value
+            indicatorValues += "| " + name +": " + ohlcAnnotation.format()(value) + " ";
+        });
+        candleLabel.text(
+            timeAnnotation.format()(coords.x || new Date()) 
+            + " - O: " + ohlcAnnotation.format()(candle.open)
+            + " | H: " + ohlcAnnotation.format()(candle.high)
+            + " | L: " + ohlcAnnotation.format()(candle.low)
+            + " | C: " + ohlcAnnotation.format()(candle.close)
+            + " - Vol: " + volumeAxis.tickFormat()(candle.volume)
+            + " |" + indicatorValues
+        );
+    }
+
 }
