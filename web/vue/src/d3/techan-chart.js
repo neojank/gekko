@@ -9,7 +9,7 @@ export default function(_data, _trades, _indicatorResults, _height) {
     var dim = {
         width: MAX_WIDTH, height: _height,
         margin: { top: 20, right: 100, bottom: 30, left: 70 },
-        ohlc: { height: 305 },
+        ohlc: { height: 505 },
         indicator: { height: 65, padding: 5 }
     };
     dim.plot = {
