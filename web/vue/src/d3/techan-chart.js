@@ -338,7 +338,7 @@ export default function(_data, _trades, _indicatorResults, _height) {
     svg.select("g.tradearrow").datum(trades).call(tradearrow);
 
     // Stash for zooming
-    zoomableInit = x.zoomable().domain([indicatorPreRoll, data.length]).copy(); // Zoom in a little to hide indicator preroll
+    zoomableInit = x.zoomable().clamp(false).copy();
     yInit = y.copy();
     yPercentInit = yPercent.copy();
 
@@ -351,7 +351,9 @@ export default function(_data, _trades, _indicatorResults, _height) {
     }
 
     function zoomed() {
-        x.zoomable().domain(d3.event.transform.rescaleX(zoomableInit).domain());
+        if (window.event.shiftKey !== true)
+            x.zoomable().domain(d3.event.transform.rescaleX(zoomableInit).domain());
+        
         y.domain(d3.event.transform.rescaleY(yInit).domain());
         yPercent.domain(d3.event.transform.rescaleY(yPercentInit).domain());
 
