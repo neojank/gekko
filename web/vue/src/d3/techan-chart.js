@@ -57,8 +57,15 @@ export default function(_data, _trades, _indicatorResults, _height) {
 
     // strategy indicators
     let indicators = {};
-    _.each(_indicatorResults, (val, key) => {
-        indicators[key] = techan.plot.sma().xScale(x).yScale(y);
+    let indicatorData = {};
+    _.each(_indicatorResults, (results, name) => {
+        indicators[name] = techan.plot.sma().xScale(x).yScale(y);
+        indicatorData[name] = results.map( val => {
+            return {
+                date: new Date(val.date),
+                value: val.result
+            }
+        });
     });
 
     var volume = techan.plot.volume()
@@ -231,12 +238,11 @@ export default function(_data, _trades, _indicatorResults, _height) {
             .attr("class", "candlestick")
             .attr("clip-path", "url(#ohlcClip)");
 
-    let i = 0;
-    _.each(indicators, (val, key) => {
+    _.each(indicators, (indicator, name) => {
         ohlcSelection.append("g")
-            .attr("class", "indicator sma ma-"+i)
-            .attr("clip-path", "url(#ohlcClip)");
-        i++;
+            .attr("class", "indicator line-"+name)
+            .attr("clip-path", "url(#ohlcClip)")
+            .attr("style", "stroke: blue;") // TODO: own color for each indicator
     });
 
     ohlcSelection.append("g")
@@ -316,16 +322,8 @@ export default function(_data, _trades, _indicatorResults, _height) {
     svg.select("g.close.annotation").datum([data[data.length-1]]).call(closeAnnotation);
     svg.select("g.volume").datum(data).call(volume);
 
-    i = 0;
-    _.each(indicators, (val, key) => {
-        let mappedData = _indicatorResults[key].map(k => {
-            return {
-                date: new Date(k.date),
-                value: k.result
-            }
-        });
-        svg.select("g.sma.ma-" + i).datum(mappedData).call(val);
-        i++;
+    _.each(indicators, (indicator, name) => {
+        svg.select("g.indicator.line-"+name).datum(indicatorData[name]).call(indicator);
     });
 
     svg.select("g.macd .indicator-plot").datum(macdData).call(macd);
@@ -375,10 +373,8 @@ export default function(_data, _trades, _indicatorResults, _height) {
         svg.select("g.close.annotation").call(closeAnnotation.refresh);
         svg.select("g.volume").call(volume.refresh);
 
-        i = 0;
-        _.each(indicators, (val, key) => {
-            svg.select("g .sma.ma-" + i).call(val.refresh);
-            i++;
+        _.each(indicators, (indicator, name) => {
+            svg.select("g.indicator.line-"+name).call(indicator.refresh);
         });
 
         svg.select("g.macd .indicator-plot").call(macd.refresh);

@@ -104,18 +104,6 @@ path.volume {
     stroke-width: 1;
 }
 
-.ma-0 path.line {
-    stroke: #1f77b4;
-}
-
-.ma-1 path.line {
-    stroke: #aec7e8;
-}
-
-.ma-2 path.line {
-    stroke: #ff7f0e;
-}
-
 button {
     position: absolute;
     right: 110px;
