@@ -7,6 +7,9 @@ export default function(_data, _trades, _indicatorResults, _height, _config) {
 
     // get chart config from current strategy/method
     var config = (_config[_config.tradingAdvisor.method]).chart || {};
+    config.indicatorColors= config.indicatorColors || {};
+    config.indicatorStyles = config.indicatorStyles || {};
+
     let MAX_WIDTH = window.innerWidth;
     
     var dim = {
@@ -237,7 +240,7 @@ export default function(_data, _trades, _indicatorResults, _height, _config) {
             .attr("y", -12)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text("Price ($)");
+            .text("Price");
 
     ohlcSelection.append("g")
             .attr("class", "close annotation up");
@@ -250,11 +253,25 @@ export default function(_data, _trades, _indicatorResults, _height, _config) {
             .attr("class", "candlestick")
             .attr("clip-path", "url(#ohlcClip)");
 
+    var indicatorLabels = {};
+    var labelYOffset = 20;
     _.each(indicators, (indicator, name) => {
+        var style = config.indicatorStyles[name];
+        var color = config.indicatorColors[name] || "blue";
+        var inlineStyle = (style || "") + `stroke: ${color};`;
         ohlcSelection.append("g")
             .attr("class", "indicator line-"+name)
             .attr("clip-path", "url(#ohlcClip)")
-            .attr("style", "stroke: blue;") // TODO: own color for each indicator
+            .attr("style", inlineStyle)
+
+        indicatorLabels[name] = svg.append('text')
+            .style("text-anchor", "start")
+            .attr("class", "label")
+            .attr("x", 5)
+            .attr("y", labelYOffset)
+            .style("fill", color)
+            .text(name)
+        labelYOffset += 12;
     });
 
     ohlcSelection.append("g")
@@ -404,10 +421,9 @@ export default function(_data, _trades, _indicatorResults, _height, _config) {
     function crosshairMove(coords) {
         let i = bisectDate(data, coords.x); //get closest index
         let candle = data[i];
-        let indicatorValues = " ";
         _.each(indicators, (indicator, name) => {
             let value = indicatorData[name][i].value
-            indicatorValues += "| " + name +": " + ohlcAnnotation.format()(value) + " ";
+            indicatorLabels[name].text(name +": "+ ohlcAnnotation.format()(value));
         });
         candleLabel.text(
             timeAnnotation.format()(coords.x || new Date()) 
@@ -416,7 +432,6 @@ export default function(_data, _trades, _indicatorResults, _height, _config) {
             + " | L: " + ohlcAnnotation.format()(candle.low)
             + " | C: " + ohlcAnnotation.format()(candle.close)
             + " - Vol: " + volumeAxis.tickFormat()(candle.volume)
-            + " |" + indicatorValues
         );
     }
 
