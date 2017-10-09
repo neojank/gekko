@@ -10,7 +10,7 @@
           p Running backtest..
           spinner
     div.result-wrapper
-      result(v-if='backtestResult && backtestState === "fetched"', :result='backtestResult')
+      result(v-if='backtestResult && backtestState === "fetched"', :result='backtestResult', :config='config')
 </template>
 
 <script>

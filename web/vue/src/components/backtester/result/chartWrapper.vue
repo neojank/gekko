@@ -12,7 +12,7 @@ import { draw as drawMessage, clear as clearMessage } from '../../../d3/message'
 const MIN_CANDLES = 4;
 
 export default {
-  props: ['data', 'height'],
+  props: ['data', 'height', 'config'],
 
   data: function() {
     return {
@@ -40,7 +40,7 @@ export default {
       if(_.size(this.data.candles) < MIN_CANDLES) {
         drawMessage('Not enough data to spawn chart');
       } else {
-        chart(this.data.candles, this.data.trades, this.data.indicatorResults, this.height);
+        chart(this.data.candles, this.data.trades, this.data.indicatorResults, this.height, this.config);
       }
     },
     remove: function() {

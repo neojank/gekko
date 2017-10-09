@@ -3,7 +3,10 @@ import _ from 'lodash'
 // techanjs candle chart with indicators
 // based on example http://bl.ocks.org/andredumas/edf630690c10b89be390
 
-export default function(_data, _trades, _indicatorResults, _height) {
+export default function(_data, _trades, _indicatorResults, _height, _config) {
+
+    // get chart config from current strategy/method
+    var config = (_config[_config.tradingAdvisor.method]).chart || {};
     let MAX_WIDTH = window.innerWidth;
     
     var dim = {
