@@ -52,6 +52,7 @@ export default {
       }
 
       post('backtest', req, (error, response) => {
+        console.log(response);
         this.backtestState = 'fetched';
         this.backtestResult = response;
       });

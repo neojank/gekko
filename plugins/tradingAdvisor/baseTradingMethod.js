@@ -262,6 +262,15 @@ Base.prototype.propogateTick = function(candle) {
     });
   })
 
+  // emit for UI tulip
+  _.each(this.tulipIndicators, (indicator, name) => {
+    cp.indicatorResult({
+      name,
+      date: candle.start,
+      result: indicator.result
+    });
+  })
+
   // are we totally finished?
   var done = this.age === this.processedTicks;
   if(done && this.finishCb)

@@ -37,6 +37,8 @@ dwsync.xml
 
 # Folders & files to ignore
 
+config\strategies
+strategies
 node_modules
 candles.csv
 cexio.db
@@ -49,3 +51,5 @@ config-*.js
 private-*.js
 private-*.toml
 SECRET-api-keys.json
+/gekko.njsproj
+/.vs/gekko/v15/.suo
